@@ -2,14 +2,24 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import { supabase } from './db/client';
 
+interface User {
+  id: string;
+  username: string | null;
+  status: string | null;
+}
+
 function App() {
+  const [users, setUsers] = useState<User[]>([]);
+
   useEffect(() => {
     const fetchUsers = async () => {
       const { data, error } = await supabase.from('users').select('*');
       if (error) {
         console.error('Error fetching users:', error);
-      } else {
-        console.log('Users:', data);
+      }
+
+      if (data) {
+        setUsers(data);
       }
 
       return { data, error };
@@ -18,7 +28,16 @@ function App() {
   }, []);
 
   return (
-    <h1>Test Supabase</h1>
+    <div className="App">
+      <h1>Users</h1>
+      <ul>
+        {users.map(user => (
+          <li key={user.id}>
+            {user.username} - {user.status}
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 
