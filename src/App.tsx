@@ -13,7 +13,7 @@ function App() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from('users').select('*');
+      const { data, error } = await supabase.functions.invoke('get-user');
       if (error) {
         console.error('Error fetching users:', error);
       }
