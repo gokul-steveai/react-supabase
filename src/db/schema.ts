@@ -17,19 +17,19 @@ export type Database = {
       channels: {
         Row: {
           created_by: string
-          id: number
+          id: string
           inserted_at: string
           slug: string
         }
         Insert: {
           created_by: string
-          id?: number
+          id?: string
           inserted_at?: string
           slug: string
         }
         Update: {
           created_by?: string
-          id?: number
+          id?: string
           inserted_at?: string
           slug?: string
         }
@@ -45,22 +45,22 @@ export type Database = {
       }
       messages: {
         Row: {
-          channel_id: number
-          id: number
+          channel_id: string
+          id: string
           inserted_at: string
           message: string | null
           user_id: string
         }
         Insert: {
-          channel_id: number
-          id?: number
+          channel_id: string
+          id?: string
           inserted_at?: string
           message?: string | null
           user_id: string
         }
         Update: {
-          channel_id?: number
-          id?: number
+          channel_id?: string
+          id?: string
           inserted_at?: string
           message?: string | null
           user_id?: string
@@ -84,17 +84,17 @@ export type Database = {
       }
       role_permissions: {
         Row: {
-          id: number
+          id: string
           permission: Database["public"]["Enums"]["app_permission"]
           role: Database["public"]["Enums"]["app_role"]
         }
         Insert: {
-          id?: number
+          id?: string
           permission: Database["public"]["Enums"]["app_permission"]
           role: Database["public"]["Enums"]["app_role"]
         }
         Update: {
-          id?: number
+          id?: string
           permission?: Database["public"]["Enums"]["app_permission"]
           role?: Database["public"]["Enums"]["app_role"]
         }
@@ -102,17 +102,17 @@ export type Database = {
       }
       user_roles: {
         Row: {
-          id: number
+          id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          id?: number
+          id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          id?: number
+          id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
@@ -133,7 +133,7 @@ export type Database = {
           username: string | null
         }
         Insert: {
-          id: string
+          id?: string
           status?: Database["public"]["Enums"]["user_status"] | null
           username?: string | null
         }
