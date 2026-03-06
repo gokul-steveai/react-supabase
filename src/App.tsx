@@ -14,16 +14,17 @@ function App() {
   useEffect(() => {
     const fetchUsers = async () => {
       const { data, error } = await supabase.functions.invoke('get-user');
+      
       if (error) {
         console.error('Error fetching users:', error);
+        return;
       }
 
       if (data) {
         setUsers(data);
       }
-
-      return { data, error };
     };
+
     fetchUsers();
   }, []);
 
