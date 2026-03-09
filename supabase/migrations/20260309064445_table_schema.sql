@@ -454,6 +454,15 @@ using ((( SELECT auth.uid() AS uid) = user_id));
 
 
 
+  create policy "Allow authenticated read"
+  on "public"."users"
+  as permissive
+  for select
+  to authenticated
+using (true);
+
+
+
   create policy "Allow individual insert access"
   on "public"."users"
   as permissive
