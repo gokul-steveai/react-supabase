@@ -31,7 +31,7 @@ supabase db push
 
 4. Deploy Edge Functions:
 ```bash
-supabase functions deploy get-user
+supabase functions deploy <function-name>
 ```
 
 ## Development
