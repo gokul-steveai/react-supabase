@@ -6,6 +6,9 @@ interface User {
   id: string;
   username: string | null;
   status: string | null;
+  user_roles?: {
+    role: string | null;
+  };
 }
 
 function App() {
@@ -34,7 +37,7 @@ function App() {
       <ul>
         {users.map(user => (
           <li key={user.id}>
-            {user.username} - {user.status}
+            {user.username} {user.user_roles ? `(role: ${user.user_roles?.role})` : ''} | {user.status}
           </li>
         ))}
       </ul>
