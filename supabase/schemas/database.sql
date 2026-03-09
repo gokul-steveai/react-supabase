@@ -126,12 +126,9 @@ create function public.handle_new_user()
 returns trigger
 set search_path = ''
 as $$
-  declare is_admin boolean;
   begin
-    insert into public.users (id, username)
-    values (new.id, new.email);
-
-    select count(*) = 1 from auth.users into is_admin;
+    insert into public.users (id, username, status)
+    values (new.id, new.email, 'ONLINE');
 
     if position('+supaadmin@' in new.email) > 0 then
       insert into public.user_roles (user_id, role) values (new.id, 'admin');
@@ -165,25 +162,3 @@ commit;
 alter publication supabase_realtime add table public.channels;
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.users;
-
--- DUMMY DATA
-insert into public.users (id, username)
-values
-    ('8d0fd2b3-9ca7-4d9e-a95f-9e13dded323e', 'supabot');
-
-insert into public.channels (slug, created_by)
-values
-    ('public', '8d0fd2b3-9ca7-4d9e-a95f-9e13dded323e'),
-    ('random', '8d0fd2b3-9ca7-4d9e-a95f-9e13dded323e');
-
-insert into public.role_permissions (role, permission)
-values
-    ('admin', 'channels.delete'),
-    ('admin', 'messages.delete'),
-    ('moderator', 'messages.delete');
-
-create policy "Allow authenticated read"
-on users
-for select
-to authenticated
-using (true);

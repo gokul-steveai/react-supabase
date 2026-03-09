@@ -1,48 +1,28 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import { supabase } from './db/client';
-
-interface User {
-  id: string;
-  username: string | null;
-  status: string | null;
-  user_roles?: {
-    role: string | null;
-  }[];
-}
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Auth from './pages/Auth';
+import Chat from './pages/Chat';
 
 function App() {
-  const [users, setUsers] = useState<User[]>([]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const { data, error } = await supabase.functions.invoke('get-user');
-      
-      if (error) {
-        console.error('Error fetching users:', error);
-        return;
-      }
-
-      if (data) {
-        setUsers(data);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
   return (
-    <div className="App">
-      <h1>Users</h1>
-      <ul>
-        {users.map(user => (
-          <li key={user.id}>
-            {user.username} {user?.user_roles && user.user_roles.length > 0 ? `(${user.user_roles[0].role})` : ''} | {user.status}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Auth />} />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
 export default App
