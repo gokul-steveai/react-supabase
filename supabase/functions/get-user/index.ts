@@ -17,11 +17,8 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("*");
+  const { data, error } = await supabase.from("users").select(`*, user_roles(role)`);
 
-  
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
