@@ -112,8 +112,6 @@ create policy "Allow individual delete access" on public.messages
   for delete using ((select auth.uid()) = user_id);
 create policy "Allow authorized delete access" on public.messages
   for delete using (authorize('messages.delete', auth.uid()));
-create policy "Allow individual read access" on public.user_roles
-  for select using ((select auth.uid()) = user_id);
 
 -- Send "previous data" on change
 alter table public.users
