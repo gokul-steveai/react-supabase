@@ -1,4 +1,4 @@
-# ChatApp
+# Chatter - Real-time Chat Application
 
 A modern real-time chat application where you can instantly message with friends across multiple channels.
 
