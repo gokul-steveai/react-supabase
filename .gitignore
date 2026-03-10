@@ -27,4 +27,5 @@ dist-ssr
 .env.local
 
 # Supabase
-**/.temp
+**/supabase/.temp
+**/supabase/.branches

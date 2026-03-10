@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../db/client';
 import type { Database } from '../db/schema';
 import type { RealtimeChannel } from '@supabase/supabase-js';
@@ -14,51 +14,32 @@ export function useMessages(channelId: string | null) {
   useEffect(() => {
     if (!channelId) return;
 
-    let subscription: RealtimeChannel | undefined;
+    let channel: RealtimeChannel;
 
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
+    const setup = async () => {
+      const { data } = await supabase
         .from("messages")
         .select("*, users(username)")
         .eq("channel_id", channelId)
         .order("inserted_at", { ascending: true });
 
-      if (!error && data) {
-        setMessages(data as Message[]);
-      }
-
+      if (data) setMessages(data as Message[]);
       setLoading(false);
-    };
 
-    const subscribeToMessages = () => {
-      subscription = supabase
-        .channel(`messages-${channelId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "messages",
-            filter: `channel_id=eq.${channelId}`,
-          },
-          (payload) => {
-            const newMessage = payload.new as Message;
-            setMessages((prev: Message[]) => {
-              if (prev.find((m) => m.id === newMessage.id)) return prev;
-              return [...prev, newMessage];
-            });
-          }
-        )
+      channel = supabase
+        .channel(`room:${channelId}`)
+        .on('broadcast', { event: 'new_message' }, ({ payload }) => {
+          setMessages((prev) => 
+            prev.some(m => m.id === payload.id) ? prev : [...prev, payload as Message]
+          );
+        })
         .subscribe();
     };
 
-    fetchMessages();
-    subscribeToMessages();
+    setup();
 
     return () => {
-      if (subscription) {
-        supabase.removeChannel(subscription);
-      }
+      if (channel) supabase.removeChannel(channel);
     };
   }, [channelId]);
 
