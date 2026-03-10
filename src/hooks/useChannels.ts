@@ -8,19 +8,23 @@ export function useChannels() {
   const [channels, setChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
-    const fetchChannels = () => {
-      supabase.from('channels').select('*').order('inserted_at')
-        .then(({ data, error }) => {
-          if (error) console.error('Error fetching channels:', error);
-          if (data) setChannels(data);
-        });
+    const fetchChannels = async () => {
+      const { data, error } = await supabase
+        .from('channels')
+        .select('*')
+        .order('inserted_at');
+      
+      if (error) console.error('Error fetching channels:', error);
+      if (data) setChannels(data);
     };
 
     fetchChannels();
+    
     const sub = supabase
       .channel('channels')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'channels' }, fetchChannels)
       .subscribe();
+    
     return () => {
       sub.unsubscribe();
     };

@@ -24,23 +24,32 @@ export default function Chat() {
 
   useEffect(() => {
     const fetchUserStats = async () => {
-      const { count: total } = await supabase.from('users').select('*', { count: 'exact', head: true });
-      const { count: online } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('status', 'ONLINE');
+      const [{ count: total }, { count: online }] = await Promise.all([
+        supabase.from('users').select('*', { count: 'exact', head: true }),
+        supabase.from('users').select('*', { count: 'exact', head: true }).eq('status', 'ONLINE')
+      ]);
+      
       setTotalMembers(total || 0);
       setOnlineMembers(online || 0);
     };
+    
     fetchUserStats();
   }, []);
 
   useEffect(() => {
-    if (user) {
-      supabase
+    if (!user) return;
+    
+    const fetchUsername = async () => {
+      const { data } = await supabase
         .from('users')
         .select('username')
         .eq('id', user.id)
-        .single()
-        .then(({ data }) => setUsername(data?.username || user.email || ''));
-    }
+        .single();
+      
+      setUsername(data?.username || user.email || '');
+    };
+    
+    fetchUsername();
   }, [user]);
 
   useEffect(() => {
@@ -52,14 +61,19 @@ export default function Chat() {
   const handleSend = async (message: string) => {
     if (!selectedChannel || !user) return;
     
-    const { data } = await supabase.from('messages').insert({ 
-      message, 
-      user_id: user.id, 
-      channel_id: selectedChannel 
-    }).select('*, users(username)').single() ;
-    
+    const { data } = await supabase
+      .from('messages')
+      .insert({ message, user_id: user.id, channel_id: selectedChannel })
+      .select('*, users(username)')
+      .single();
+
     if (data) {
       setMessages((prev) => [...prev, data]);
+      supabase.channel(`room:${selectedChannel}`).send({
+        type: 'broadcast',
+        event: 'new_message',
+        payload: data
+      });
     }
   };
 
@@ -70,7 +84,7 @@ export default function Chat() {
 
   const selectedChannelData = channels.find(c => c.id === selectedChannel);
 
-  const signOutUser = async () => {
+  const handleSignOut = async () => {
     await signOut();
     navigate('/');
   }
@@ -93,7 +107,7 @@ export default function Chat() {
           channels={channels}
           selectedChannel={selectedChannel}
           onSelectChannel={handleSelectChannel}
-          onSignOut={signOutUser}
+          onSignOut={handleSignOut}
           onClose={() => setSidebarOpen(false)}
           username={username}
         />
