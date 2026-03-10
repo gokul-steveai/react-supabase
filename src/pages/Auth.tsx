@@ -1,51 +1,54 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ROUTES, MESSAGES } from '../constants';
 import AuthLayout from '../components/layouts/AuthLayout';
 import LoginForm from '../components/auth/LoginForm';
 import SignupForm from '../components/auth/SignupForm';
 
-export default function Auth() {
+export default function Auth(): JSX.Element {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate('/chat', { replace: true });
+    if (user) navigate(ROUTES.CHAT, { replace: true });
   }, [user, navigate]);
 
   useEffect(() => {
     setError('');
   }, [isSignUp]);
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (email: string, password: string): Promise<void> => {
     setError('');
     try {
       await signIn(email, password);
-      navigate('/chat');
-    } catch (err: any) {
-      setError(err.message);
+      navigate(ROUTES.CHAT);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : MESSAGES.ERROR_GENERIC;
+      setError(errorMessage);
     }
   };
 
-  const handleSignup = async (email: string, password: string, confirmPassword: string) => {
+  const handleSignup = async (email: string, password: string, confirmPassword: string): Promise<void> => {
     setError('');
     
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(MESSAGES.ERROR_PASSWORD_MISMATCH);
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(MESSAGES.ERROR_PASSWORD_MIN_LENGTH);
       return;
     }
     
     try {
       await signUp(email, password);
-      navigate('/chat');
-    } catch (err: any) {
-      setError(err.message);
+      navigate(ROUTES.CHAT);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : MESSAGES.ERROR_GENERIC;
+      setError(errorMessage);
     }
   };
 
