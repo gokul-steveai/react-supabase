@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../db/client';
 import type { Database } from '../db/schema';
 import type { RealtimeChannel } from '@supabase/supabase-js';
